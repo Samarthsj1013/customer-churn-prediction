@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./logs:/app/logs
+    environment:
+      - DEBUG=False
+    command: uvicorn src.api.main:app --host 0.0.0.0 --port 8000
+
+  dashboard:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    depends_on:
+      - api
+    command: streamlit run src/dashboard/app.py --server.port 8501 --server.address 0.0.0.0
+
+  dashboard-pages:
+    build: .
+    ports:
+      - "8502:8502"
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+    command: streamlit run src/dashboard/pages/analytics.py --server.port 8502 --server.address 0.0.0.0
